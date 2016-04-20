@@ -139,7 +139,31 @@ def application(environ, start_response):
         body = "<h1>divide by zero</h1>"
     except ValueError:
         status = "500 Internal Server Error"
-        body = "<html>Bad argument. Here's how to use this page...</html>"
+
+
+        page = """
+        <!DOCTYPE html>
+        <html>
+        <body>
+        This page explains how to perform calculations. Supported operations are Addition, Subtractions, Multiplication and Division. 
+
+        <p>Addition Example: <a href="http://localhost:8080/add/23/42">http://localhost:8080/add/23/42</a> Excepected result: 15 </p>
+
+        <p>Multiplication Example: <a href="http://localhost:8080/multiply/3/5">http://localhost:8080/multiply/3/5</a> Excepected result: 65 </p>
+
+        <p>Subtractions Example: <a href="http://localhost:8080/subtract/23/42">http://localhost:8080/subtract/23/42</a> Excepected result: 19 </p>
+
+        <p>Division Example: <a href="http://localhost:8080/divide/22/11">http://localhost:8080/divide/22/11</a> Excepected result: 2 </p>
+
+        <p>Division by zero Example: <a href="http://localhost:8080/divide/6/0">http://localhost:8080/divide/6/0</a> Excepected result: Bad Request </p>
+
+        <p>Here's how to use this page: <a href="http://localhost:8080/">Home page</a> </p>
+
+        </body>
+        </html>
+        """
+        body = page
+        #body = "<html>Bad argument. Here's how to use this page...</html>"
     except Exception:
         status = "500 Internal Server Error"
         body = "<h1>Internal Server Error</h1>"
