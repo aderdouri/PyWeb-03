@@ -43,16 +43,55 @@ To submit your homework:
 """
 
 
+def multiply(*args):
+    """ Returns a STRING with the multiplication of the arguments """
+
+    # TODO: Fill mult with the correct value, based on the
+    # args provided.
+    a = int(args[0])
+    b = int(args[1])
+    res = a * b
+    return str(res)
+    raise ValueError
+
+# TODO: Add functions for handling more arithmetic operations.
+
 def add(*args):
     """ Returns a STRING with the sum of the arguments """
 
     # TODO: Fill sum with the correct value, based on the
     # args provided.
-    sum = "0"
+    a = int(args[0])
+    b = int(args[1])
+    res = a + b
+    return str(res)
+    raise ValueError
 
-    return sum
+def subtract(*args):
+    """ Returns a STRING with the substraction of the arguments """
 
-# TODO: Add functions for handling more arithmetic operations.
+    # TODO: Fill sum with the correct value, based on the
+    # args provided.
+    a = int(args[0])
+    b = int(args[1])
+    res = a - b
+    return str(res)
+    raise ValueError
+
+def divide(*args):
+    """ Returns a STRING with the division of the arguments """
+
+    # TODO: Fill res with the correct value, based on the
+    # args provided.
+    a = int(args[0])
+    b = int(args[1])
+    if b == 0:
+        raise ZeroDivisionError("divide by zero")
+    else:
+        res = a/b
+
+    return str(res)
+    raise ValueError
 
 def resolve_path(path):
     """
@@ -64,22 +103,60 @@ def resolve_path(path):
     # examples provide the correct *syntax*, but you should
     # determine the actual values of func and args using the
     # path.
-    func = add
-    args = ['25', '32']
+
+    lstripedPath = path.lstrip('/')
+    funcArgs = []
+    funcArgs = lstripedPath.split('/')
+    x= len(funcArgs)
+    if len(funcArgs) < 2:
+        raise ValueError
+    func = eval(funcArgs[0])
+    args = funcArgs[1:]
 
     return func, args
+    # we get here if no url matches
+    raise NameError
 
 def application(environ, start_response):
     # TODO: Your application code from the book database
     # work here as well! Remember that your application must
     # invoke start_response(status, headers) and also return
     # the body of the response in BYTE encoding.
+    headers = [("Content-type", "text/html")]
+    try:
+        path = environ.get('PATH_INFO', None)
+        if path is None:
+            raise NameError
+        func, args = resolve_path(path)
+        body = "{0} {1} and {2} equals {3}".format(func.__name__, args[0], args[1], func(*args))
+
+        status = "200 OK"
+    except NameError:
+        status = "404 Not Found"
+        body = "<h1>Not Found</h1>"
+    except ZeroDivisionError:
+        status = "400 HTTP Bad Request"
+        body = "<h1>divide by zero</h1>"
+    except ValueError:
+        status = "500 Internal Server Error"
+        body = "<html>Bad argument. Here's how to use this page...</html>"
+    except Exception:
+        status = "500 Internal Server Error"
+        body = "<h1>Internal Server Error</h1>"
+    finally:
+        headers.append(('Content-length', str(len(body))))
+        start_response(status, headers)
+        return [body.encode('utf8')]
+
     #
     # TODO (bonus): Add error handling for a user attempting
     # to divide by zero.
-    pass
+    # Abderrazak DERDOURI: One solution is to catch the exception ZeroDivisionError above
+    #
 
 if __name__ == '__main__':
     # TODO: Insert the same boilerplate wsgiref simple
     # server creation that you used in the book database.
-    pass
+    from wsgiref.simple_server import make_server
+    srv = make_server('localhost', 8080, application)
+    srv.serve_forever()
